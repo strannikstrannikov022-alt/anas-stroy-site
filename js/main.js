@@ -2,6 +2,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const year = document.querySelector('[data-year]');
   if (year) year.textContent = new Date().getFullYear();
 
+  const priceGrid = document.querySelector('[data-price-grid]');
+  if (priceGrid && Array.isArray(window.priceCategories)) {
+    priceGrid.innerHTML = window.priceCategories
+      .map((category) => `
+        <article class="price-card">
+          <span class="price-source">${category.sourceLabel}</span>
+          <h3>${category.title}</h3>
+          <div class="price-list">
+            ${category.items.map((item) => `
+              <div class="price-row">
+                <div>
+                  <p class="price-service">${item.service}</p>
+                  <p class="price-note">${item.note}</p>
+                </div>
+                <div class="price-value">${item.price}</div>
+              </div>
+            `).join('')}
+          </div>
+        </article>
+      `)
+      .join('');
+  }
+
   const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
   const portfolioItems = Array.from(document.querySelectorAll('.portfolio-item[data-category]'));
 
