@@ -93,6 +93,7 @@ a { color: inherit; text-decoration: none; }
 .btn-outline {
   border-color: #d4ccb2;
   background: #fff;
+  color: var(--text);
 }
 .btn-outline:hover { border-color: var(--accent); }
 .hero {
@@ -647,5 +648,50 @@ a { color: inherit; text-decoration: none; }
   .lightbox-close {
     top: 12px;
     right: 12px;
+  }
+}
+
+
+/* Fix action buttons on dark sections and price page */
+.footer .btn-outline,
+.price-cta .btn-outline,
+.price-download-panel .btn-outline {
+  color: var(--text);
+}
+
+.price-download-panel .hero-actions,
+.price-cta .hero-actions {
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+
+.price-download-panel .hero-actions > *,
+.price-download-panel .price-actions > *,
+.price-cta .hero-actions > * {
+  width: 100%;
+}
+
+.price-download-panel .price-actions {
+  margin-top: 12px;
+}
+
+.price-download-panel .btn,
+.price-download-panel .btn-outline,
+.price-download-panel .price-actions .btn-outline,
+.price-cta .btn,
+.price-cta .btn-outline {
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .footer .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footer .hero-actions > * {
+    width: 100%;
   }
 }
