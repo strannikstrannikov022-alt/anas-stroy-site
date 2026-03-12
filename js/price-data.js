@@ -1,3 +1,9 @@
+window.priceDownloadMeta = {
+  fileName: 'price-hmao-nizhnevartovsk.txt',
+  title: 'Прайс на строительные и кровельные работы',
+  subtitle: 'Ориентировочные цены по ХМАО и Нижневартовску. Точная стоимость зависит от объема, материалов, сложности объекта и выезда на замер.'
+};
+
 window.priceCategories = [
   {
     title: 'Кровельные работы',
