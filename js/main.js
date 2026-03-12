@@ -1,155 +1,136 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const year = document.querySelector('[data-year]');
-  if (year) year.textContent = new Date().getFullYear();
+// Скачать прайс в удобном формате HTML
 
-  const buildPriceText = () => {
-    const meta = window.priceDownloadMeta || {};
-    const categories = Array.isArray(window.priceCategories) ? window.priceCategories : [];
-    const lines = [
-      meta.title || 'Прайс на строительные и кровельные работы',
-      meta.subtitle || '',
-      '',
-      'Точный расчет делаем после обсуждения задачи, размеров объекта и выбора материалов.',
-      ''
-    ];
+const buildPriceHtml = () => {
+  const meta = window.priceDownloadMeta || {};
+  const categories = Array.isArray(window.priceCategories) ? window.priceCategories : [];
 
-    categories.forEach((category) => {
-      lines.push(category.title);
-      lines.push(`Источник ориентира: ${category.sourceLabel}`);
-      category.items.forEach((item) => {
-        lines.push(`- ${item.service}: ${item.price}`);
-        lines.push(`  ${item.note}`);
-      });
-      lines.push('');
-    });
+  return `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    return lines.join('\n');
-  };
+<title>${meta.title || 'Прайс на строительные работы'}</title>
 
-  const downloadButtons = Array.from(document.querySelectorAll('[data-download-price]'));
-  if (downloadButtons.length && Array.isArray(window.priceCategories)) {
-    downloadButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const meta = window.priceDownloadMeta || {};
-        const blob = new Blob([buildPriceText()], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = meta.fileName || 'price-list.txt';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
-      });
-    });
-  }
+<style>
 
-  const priceGrid = document.querySelector('[data-price-grid]');
-  if (priceGrid && Array.isArray(window.priceCategories)) {
-    priceGrid.innerHTML = window.priceCategories
-      .map((category) => `
-        <article class="price-card">
-          <span class="price-source">${category.sourceLabel}</span>
-          <h3>${category.title}</h3>
-          <div class="price-list">
-            ${category.items.map((item) => `
-              <div class="price-row">
-                <div>
-                  <p class="price-service">${item.service}</p>
-                  <p class="price-note">${item.note}</p>
-                </div>
-                <div class="price-value">${item.price}</div>
-              </div>
-            `).join('')}
-          </div>
-        </article>
-      `)
-      .join('');
-  }
+body{
+font-family:Arial, sans-serif;
+line-height:1.5;
+padding:24px;
+max-width:900px;
+margin:auto;
+background:#ffffff;
+color:#111;
+}
 
-  const priceTeaserGrid = document.querySelector('[data-price-teaser-grid]');
-  if (priceTeaserGrid && Array.isArray(window.priceCategories)) {
-    const teaserCards = window.priceCategories
-      .filter((category) => ['Кровельные работы', 'Строительство домов', 'Бани', 'Заборы'].includes(category.title))
-      .map((category) => ({
-        title: category.title,
-        items: category.items.slice(0, 3)
-      }));
+h1{
+font-size:28px;
+margin-bottom:10px;
+}
 
-    priceTeaserGrid.innerHTML = teaserCards
-      .map((category) => `
-        <article class="price-mini-card">
-          <h3>${category.title}</h3>
-          <div class="price-mini-list">
-            ${category.items.map((item) => `
-              <div class="price-mini-row">
-                <strong>${item.service}</strong>
-                <span>${item.price}</span>
-              </div>
-            `).join('')}
-          </div>
-        </article>
-      `)
-      .join('');
-  }
+h2{
+margin-top:30px;
+border-bottom:2px solid #ddd;
+padding-bottom:6px;
+}
 
-  const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
-  const portfolioItems = Array.from(document.querySelectorAll('.portfolio-item[data-category]'));
+.note{
+background:#f5f5f5;
+border:1px solid #ddd;
+padding:16px;
+border-radius:12px;
+margin:16px 0 24px;
+}
 
-  if (filterButtons.length && portfolioItems.length) {
-    const applyFilter = (filter) => {
-      filterButtons.forEach((button) => {
-        button.classList.toggle('is-active', button.dataset.filter === filter);
-      });
+.item{
+border-bottom:1px solid #eee;
+padding:12px 0;
+}
 
-      portfolioItems.forEach((item) => {
-        const categories = item.dataset.category.split(/\s+/);
-        const matches = filter === 'all' || categories.includes(filter);
-        item.hidden = !matches;
-      });
-    };
+.service{
+font-weight:700;
+}
 
-    filterButtons.forEach((button) => {
-      button.addEventListener('click', () => applyFilter(button.dataset.filter));
-    });
+.price{
+color:#0a8f48;
+font-weight:700;
+}
 
-    applyFilter('all');
-  }
+.source{
+font-size:14px;
+color:#777;
+margin-bottom:8px;
+}
 
-  const lightbox = document.querySelector('[data-lightbox]');
-  const lightboxImage = document.querySelector('[data-lightbox-image]');
-  const lightboxTriggers = Array.from(document.querySelectorAll('[data-lightbox-src]'));
-  const lightboxClosers = Array.from(document.querySelectorAll('[data-lightbox-close]'));
+</style>
+</head>
 
-  if (lightbox && lightboxImage && lightboxTriggers.length) {
-    const closeLightbox = () => {
-      lightbox.hidden = true;
-      lightboxImage.src = '';
-      lightboxImage.alt = '';
-      document.body.style.overflow = '';
-    };
+<body>
 
-    const openLightbox = (src, alt) => {
-      lightboxImage.src = src;
-      lightboxImage.alt = alt;
-      lightbox.hidden = false;
-      document.body.style.overflow = 'hidden';
-    };
+<h1>${meta.title || 'Прайс на строительные и кровельные работы'}</h1>
 
-    lightboxTriggers.forEach((trigger) => {
-      trigger.addEventListener('click', () => {
-        openLightbox(trigger.dataset.lightboxSrc, trigger.dataset.lightboxAlt || '');
-      });
-    });
+<p>${meta.subtitle || ''}</p>
 
-    lightboxClosers.forEach((closer) => {
-      closer.addEventListener('click', closeLightbox);
-    });
+<div class="note">
+Точная стоимость зависит от размеров объекта, материалов и сложности работ.
+Свяжитесь с нами для точного расчета.
+</div>
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !lightbox.hidden) {
-        closeLightbox();
-      }
-    });
-  }
+${categories.map(category => `
+<section>
+
+<h2>${category.title}</h2>
+
+<div class="source">
+Источник ориентира: ${category.sourceLabel}
+</div>
+
+${category.items.map(item => `
+<div class="item">
+
+<div class="service">${item.service}</div>
+
+<div class="price">${item.price}</div>
+
+<div>${item.note}</div>
+
+</div>
+`).join('')}
+
+</section>
+`).join('')}
+
+</body>
+</html>`;
+};
+
+const downloadButtons = document.querySelectorAll('[data-download-price]');
+
+downloadButtons.forEach(button => {
+
+button.addEventListener('click', () => {
+
+const blob = new Blob(
+[buildPriceHtml()],
+{ type: 'text/html;charset=utf-8' }
+);
+
+const url = URL.createObjectURL(blob);
+
+const link = document.createElement('a');
+
+link.href = url;
+link.download = 'price-hmao.html';
+
+document.body.appendChild(link);
+
+link.click();
+
+link.remove();
+
+URL.revokeObjectURL(url);
+
+});
+
 });
