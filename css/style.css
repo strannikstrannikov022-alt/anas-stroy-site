@@ -509,6 +509,13 @@ a { color: inherit; text-decoration: none; }
   margin: 0;
   color: rgba(255,255,255,.82);
 }
+.price-download-panel {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+}
 .price-teaser {
   background: #fff;
   border: 1px solid var(--border);
@@ -573,6 +580,7 @@ a { color: inherit; text-decoration: none; }
   .price-section-head,
   .price-grid,
   .price-cta,
+  .price-download-panel,
   .price-teaser-head,
   .price-mini-grid {
     grid-template-columns: 1fr;
